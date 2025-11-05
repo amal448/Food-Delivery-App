@@ -79,7 +79,7 @@ export const placeOrder = async (req, res) => {
                 user: req.userId,
                 paymentMethod: req.body.paymentMode,
                 deliveryAddress,
-                totalAmount:TotalPrice,
+                totalAmount:TotalPrice * 100,
                 shopOrder: shopOrders,
                 razorpayOrderId: razorOrder.id,
                 payment: false
