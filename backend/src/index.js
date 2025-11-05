@@ -23,6 +23,10 @@ app.use(
     })
 );
 
+app.get("/", (req, res) => {
+  res.send("Backend is running successfully 🚀");
+});
+
 app.use(cookieParser())
 app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
