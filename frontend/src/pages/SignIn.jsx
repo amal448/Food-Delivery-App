@@ -96,6 +96,7 @@ const SignIn = () => {
                 }
             }
             console.log("Sign Success:", res.data);
+            setRole(res.data.role)
             reset(); // clear form after success
         } catch (error) {
             console.error("Signup Error:", error.response?.data || error.message);
@@ -108,7 +109,8 @@ const SignIn = () => {
                 { email, otp: data.pin },
                 { withCredentials: true }
             );
-
+            console.log(res.data);
+            
             if (res.data.success) {
                 // ✅ Close popup and redirect
                 console.log(res.data);
@@ -116,7 +118,13 @@ const SignIn = () => {
                 dispatch(setUserData(credentials))
                 setShowOtpModal(false);
                 setTimeout(() => {
-                    navigate("/seller");
+                    if(role=="owner"){
+                        navigate("/seller");
+                    }
+                    if(role=="deliveryBoy"){
+                        navigate("/delivery");
+                    }
+                   
                 }, 200);
             } else {
                 otpForm.setError("pin", { message: "Invalid OTP, please try again." });

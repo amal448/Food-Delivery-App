@@ -5,7 +5,7 @@ import axios from "axios";
 
 export const FetchLocation = async (req, res) => {
   const { lat, lon } = req.body;
-  console.log("req.body", req.body);
+  // console.log("req.body", req.body);
 
   if (!lat || !lon) 
     return res.status(400).json({ error: "Latitude & longitude required" });
@@ -14,7 +14,7 @@ export const FetchLocation = async (req, res) => {
     const response = await axios.get(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${process.env.GOOGLE_MAPS_API_KEY}`
     );
-    console.log("response",response);
+    // console.log("response",response);
     
     const results = response.data.results;
 

@@ -1,7 +1,7 @@
 import User from "../models/user.model.js"
 import bcrypt from 'bcryptjs'
 import genToken from "../utils/token.js"
-import sendMail from "../utils/mailer.js"
+import { sendMail } from "../utils/mailer.js"
 
 export const signUp = async (req, res) => {
     const { fullName, email, password, mobile, role } = req.body
@@ -37,10 +37,10 @@ export const signIn = async (req, res) => {
 
     role = role && role.trim() ? role : "user";
 
-    console.log("signIn", req.body);
+    // console.log("signIn", req.body);
     try {
         const user = await User.findOne({ email })
-        console.log("user", user);
+        // console.log("user", user);
 
         if (!user) return res.status(400).json({ message: "User does not Exist!!" })
         if (user.role != role) return res.status(400).json({ message: "UnAuthorised Request!!" })

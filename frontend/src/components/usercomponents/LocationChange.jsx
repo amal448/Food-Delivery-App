@@ -19,22 +19,26 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setAddress, setLocation } from '@/app/mapSlice'
 import axios from 'axios'
 import { setCity } from '@/app/userSlice'
+import useGetNearByShops from '@/hooks/useGetShopsByCity'
 
 const LocationChange = () => {
-    console.log("cncdnjsd");
 
     const { location, address } = useSelector(state => state.map)
     const [addressInput, setAddressInput] = useState('')
     const dispatch = useDispatch()
+    //  useGetNearByShops();
 
     const getLatLngByAddress1 = async () => {
         try {
+            if(addressInput)
+            {
+                const result = await axios.get(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addressInput)}&format=json&apiKey=${import.meta.env.VITE_GEOAPI_KEY}`)
+                console.log("getLatLngByAddress1", result.data);
+    
+                dispatch(setCity(result?.data?.results[0]?.city))
+               await getAddress(result.data.results[0].lat, result.data.results[0].lon)
 
-            const result = await axios.get(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addressInput)}&format=json&apiKey=${import.meta.env.VITE_GEOAPI_KEY}`)
-
-            console.log("result lat,lon", result.data);
-            dispatch(setCity(result.data.results[0].city))
-            getAddress(result.data.results[0].lat, result.data.results[0].lon)
+            }
         }
         catch (error) {
             console.log(error);
@@ -44,9 +48,20 @@ const LocationChange = () => {
     const getAddress = async (lat, lon) => {
         try {
             const result = await axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&format=json&apiKey=${import.meta.env.VITE_GEOAPI_KEY}`)
-            dispatch(setAddress(result?.data?.results[0]?.address_line2))
-            dispatch(setLocation({ lat: result?.data?.results[0]?.lat, lon: result?.data?.results[0]?.lon }))
+            // console.log("getAddress", result);
 
+            dispatch(setAddress(result?.data?.results[0]?.address_line2))
+           console.log("setLocation Change");
+           
+            dispatch(setLocation({
+                lat: result?.data?.results[0]?.lat,
+                lon: result?.data?.results[0]?.lon,
+                city: result?.data?.results[0]?.city,
+                postcode: result?.data?.results[0]?.postcode,
+                street: result?.data?.results[0]?.street,
+                suburb: result?.data?.results[0]?.suburb,
+            }))
+         
         }
         catch (error) {
             console.log(error);
@@ -55,6 +70,7 @@ const LocationChange = () => {
     }
     useEffect(() => {
         getLatLngByAddress1()
+        
     }, [addressInput])
     return (
         <AlertDialogContent>
@@ -62,7 +78,7 @@ const LocationChange = () => {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <MapPin className="h-5 w-5" />
-                        Enter your nearby city/Town
+                        Enter the City/street
                     </CardTitle>
                     <CardDescription>We’ll show shops near you within a 5 km radius.</CardDescription>
                 </CardHeader>

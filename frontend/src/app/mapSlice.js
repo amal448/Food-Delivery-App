@@ -3,9 +3,22 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
     location: {
         lat: null,
-        lon: null
+        lon: null,
+        city: null,
+        postcode: null,
+        street: null,
+        suburb: null
     },
-    address:null
+    address: null,
+    deliveryboylocation: {
+        lat: null,
+        lon: null,
+        city: null,
+        postcode: null,
+        street: null,
+        suburb: null
+    }
+
 }
 
 export const mapSlice = createSlice({
@@ -13,21 +26,40 @@ export const mapSlice = createSlice({
     initialState,
 
     reducers: {
-        setLocation:(state,action)=>{
-            const {lat,lon}=action.payload
-            state.location.lat=lat
-            state.location.lon=lon
+        setLocation: (state, action) => {
+            const { lat, lon, postcode, city, street, suburb } = action.payload
+            state.location.lat = lat
+            state.location.lon = lon
+            state.location.city = city
+            state.location.postcode = postcode
+            state.location.street = street
+            state.location.suburb = suburb
         },
-        setAddress:(state,action)=>{
-            console.log("state",action.payload);
-            
-            state.address=action.payload
-        }
+        setAddress: (state, action) => {
+            // console.log("state", action.payload);
+
+            state.address = action.payload
+        },
+        setDeliveryBoyLocation: (state, action) => {
+            const { lat, lon, postcode, city, street, suburb } = action.payload;
+
+            if (!state.deliveryboylocation) {
+                state.deliveryboylocation = {};
+            }
+
+            state.deliveryboylocation.lat = lat;
+            state.deliveryboylocation.lon = lon;
+            state.deliveryboylocation.city = city;
+            state.deliveryboylocation.postcode = postcode;
+            state.deliveryboylocation.street = street;
+            state.deliveryboylocation.suburb = suburb;
+        },
+         resetMapState: () => initialState  
 
     },
 })
 
 // Action creators are generated for each case reducer function
-export const {setLocation,setAddress } = mapSlice.actions
+export const { setLocation,resetMapState, setAddress, setDeliveryBoyLocation } = mapSlice.actions
 
 export default mapSlice.reducer

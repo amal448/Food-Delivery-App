@@ -9,7 +9,7 @@ const ForgotPage = () => {
     const [email, setEmail] = useState("")
     // 1️⃣ Create the form instance
     
-    console.log("email",email);
+    // console.log("email",email);
     
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">

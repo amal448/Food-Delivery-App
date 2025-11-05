@@ -15,13 +15,14 @@ import Skeletonloader from '@/components/skeletonloader'
 
 const Layout = () => {
   const { isEmpty } = useGetItemsByCity()
+  const shops = useSelector(state => state.user.NearByShop)
   const city = useSelector((state) => state.user.city)
 
   return (
     <div className='min-h-screen w-full px-6  overflow-hidden '>
       <Navbar />
       <div className='pt-32 container mx-auto py-4  px-6 md:px-20 lg:px-32  w-full overflow-hidden'>
-        {isEmpty && (
+        {shops?.length===0 && (
           <Alert variant="destructive">
             <Terminal />
             <AlertTitle>OOPS!
@@ -29,7 +30,7 @@ const Layout = () => {
 
             </AlertTitle>
             <AlertDescription className='flex text-lg'>
-              Your current location is detected as
+              Your current Delivery location is detected as
 
               <AlertDialog>
                 <AlertDialogTrigger  >
@@ -44,7 +45,7 @@ const Layout = () => {
           </Alert>
         )}
         {
-          isEmpty ?(
+          !shops ?(
               <Skeletonloader/>
           ):(
             

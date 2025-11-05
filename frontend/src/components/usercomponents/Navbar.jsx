@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaLocationDot } from "react-icons/fa6";
 import { IoIosSearch } from "react-icons/io";
 import { FiShoppingCart } from "react-icons/fi";
@@ -17,33 +17,70 @@ import { Link, useNavigate } from 'react-router-dom';
 import { setUserData, setCity } from '@/app/userSlice';
 import {
     AlertDialog,
+    AlertDialogContent,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import LocationChange from './LocationChange';
-
+import { logoutUser, setSearchItem } from "@/app/userSlice";
+import { resetMapState } from '@/app/mapSlice';
+import { persistor } from '@/app/store';
 
 const Navbar = () => {
-    const name = useSelector((state) => state.user.userData)
-    const city = useSelector((state) => state.user.city)
-    const count = useSelector((state) => state.user.CartCount)
+    const [query, setQuery] = useState("")
+    const name = useSelector((state) => state?.user?.userData)
+    const city = useSelector((state) => state?.user?.city)
+    const count = useSelector((state) => state?.user?.CartCount)
+    const street = useSelector((state) => state?.map?.location?.street)
 
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
     const handleLogOut = async () => {
         try {
-            console.log("hiii");
+            // console.log("hiii");
 
             const { data } = await axios.get(`${server}/api/auth/signout`, { withCredentials: true })
+
             navigate('/signin')
             dispatch(setUserData(null))
             dispatch(setCity(null))
+            dispatch(logoutUser()); // Clear user slice
+            dispatch(resetMapState()); // Clear user slice
+            persistor.purge(); // 💥 Clear redux-persist storage completely
         }
         catch (error) {
             console.log(error);
 
         }
     }
+    const handleSearchItems = async (query) => {
+        try {
+            if (!query.trim()) {
+                // Clear search results when query is empty
+                dispatch(setSearchItem([]));
+                return;
+            }
+            const res = await axios.get(
+                `${server}/api/item/search-items?query=${encodeURIComponent(query)}&city=Vaikom`,
+                { withCredentials: true }
+            );
+            dispatch(setSearchItem(res.data));
+            navigate('/');
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
+    useEffect(() => {
+        if (!query.trim()) {
+            // ✅ clear search results when query is empty
+            dispatch(setSearchItem([]));
+            return;
+        }
+
+        handleSearchItems(query);
+    }, [query]);
 
     return (
         <div className='fixed top-0 left-0 z-50 w-full overflow-hidden backdrop-blur-sm bg-[#ff4d2d]/80 '>
@@ -61,17 +98,27 @@ const Navbar = () => {
                                 <div className='flex justify-center items-center gap-3'>
                                     <FaLocationDot size={20} color={"orange"} />
                                     <span>
-                                        {city}
+                                        {city} {''}| {street}
                                     </span>
                                 </div>
                             </AlertDialogTrigger>
-                            <LocationChange />
+                            <AlertDialogContent>
+                                <LocationChange />
+                            </AlertDialogContent>
                         </AlertDialog>
                     </div>
 
                     <div className='flex items-center gap-2 px-4 border-l-2 border-gray-400'>
                         <IoIosSearch size={20} />
-                        <input type="text" placeholder='Search dilicious food' className='outline-none' />
+                        <input
+                            onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearchItems(query)}
+                            value={query}
+                            type="text"
+                            placeholder="Search delicious food"
+                            className="outline-none"
+                        />
+
                     </div>
                 </div>
                 <div className='flex items-center justify-center gap-6'>
@@ -81,7 +128,7 @@ const Navbar = () => {
                         <span className='absolute -top-5 -right-3 px-1 rounded-md bg-amber-300'>{count}</span>
                     </div>
 
-                    <button className='hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-yellow-300 text-sm font-medium'>My Orders</button>
+                    <button onClick={() => navigate('/my-orders')} className='hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-yellow-300 text-sm font-medium'>My Orders</button>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger className='w-[40px] h-[40px] rounded-full flex items-center justify-center bg-[#ff4d2d] text-white text-[18px] shadow-xl font-semibold cursor-pointer'>
@@ -102,7 +149,7 @@ const Navbar = () => {
                 <div className='flex items-center gap-2'>
                     <FaLocationDot size={20} color={"orange"} />
                     <span>
-                        {city}
+                        {city} {street}
                     </span>
                 </div>
 

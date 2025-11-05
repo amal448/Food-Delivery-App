@@ -41,7 +41,7 @@ export function Step2({ email, setStep }) {
 
     async function onSubmit(data) {
         try {
-            console.log("Forgot Password Email:", data)
+            // console.log("Forgot Password Email:", data)
 
             const res = await axios.post('http://localhost:8000/api/auth/verify-otp', { email, otp: data.pin }, { withCredentials: true })
             if (setStep == 2) {

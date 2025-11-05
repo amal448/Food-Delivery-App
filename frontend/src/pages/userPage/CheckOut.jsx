@@ -14,6 +14,11 @@ import { setAddress, setLocation } from '@/app/mapSlice'
 import axios from 'axios'
 import { server } from '@/helpers/constants'
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import { getDistanceInKm } from '@/helpers/getDistanceInKm';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { useNavigate } from 'react-router-dom'
+import { addMyOrder, clearCart, setCartItems } from '@/app/userSlice'
+
 //for centering locating center towards the pointed place
 function RecenterMap({ location }) {
   if (location.lat && location.lon) {
@@ -25,35 +30,61 @@ function RecenterMap({ location }) {
 
 const CheckOut = () => {
   const { location, address } = useSelector(state => state.map)
+  const { lat, lon, city, postcode, street, suburb } = location || {}
+
   const [addressInput, setAddressInput] = useState('')
-  console.log("location checkout", location);
+  const [paymentMode, setPaymentMode] = useState("cod")
 
   const dispatch = useDispatch()
+  const near = useSelector(state => state?.user?.NearByShop[0])
+  const phone = useSelector(state => state?.user?.userData?.mobile)
+  const cartItems = useSelector(state => state.user.CartItems)
+  const userData = useSelector(state => state.user)
+  const navigate = useNavigate()
 
   const ondragEnd = (e) => {
+    console.log(e.target);
     console.log(e.target._latlng);
     const { lat, lng } = e.target._latlng
-    dispatch(setLocation({ lat: lat, lon: lng }))
+
+    dispatch(setLocation({
+      lat: lat,
+      lon: lng,
+    }))
     getAddressByLatLng(lat, lng)
   }
-
+  //map drap lat and lon
   const getAddressByLatLng = async (lat, lon) => {
     try {
-      const result = await axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&format=json&apiKey=${import.meta.env.VITE_GEOAPI_KEY}`)
-      dispatch(setAddress(result?.data?.results[0]?.address_line2))
+      const result = await axios.get(
+        `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&format=json&apiKey=${import.meta.env.VITE_GEOAPI_KEY}`
+      );
 
-    }
-    catch (error) {
+      const data = result?.data?.results?.[0];
+      if (!data) return;
+
+      dispatch(setAddress(data?.address_line2));
+      dispatch(
+        setLocation({
+          lat: data?.lat,
+          lon: data?.lon,
+          city: data?.city,
+          postcode: data?.postcode,
+          street: data?.street,
+          suburb: data?.suburb,
+        })
+      );
+    } catch (error) {
       console.log(error);
-
     }
-  }
+  };
+
   const getCurrentLocation = async () => {
     try {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const latitude = position.coords.latitude
         const longitude = position.coords.longitude
-        console.log("vheckout Latitude:", latitude, " checkout Longitude:", longitude);
+        // console.log("vheckout Latitude:", latitude, " checkout Longitude:", longitude);
         dispatch(setLocation({ lat: latitude, lon: longitude }))
         getAddressByLatLng(latitude, longitude)
 
@@ -69,10 +100,37 @@ const CheckOut = () => {
     try {
 
       const result = await axios.get(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addressInput)}&format=json&apiKey=${import.meta.env.VITE_GEOAPI_KEY}`)
-      console.log("result lat,lon", result.data.results[0].lat, result.data.results[0].lon);
+
+      const data = result.data.results[0];
+      console.log(data);
+
+      if (!data) return alert("Address not found!");
+
       const latitude = result.data.results[0].lat
       const longitude = result.data.results[0].lon
-      dispatch(setLocation({ lat: latitude, lon: longitude }))
+
+      const shop = near;
+      if (!shop) return alert("Shop info not available!");
+
+      const [shopLon, shopLat] = shop.location.coordinates;
+      const deliveryRadius = shop.deliveryRadius || 5;
+
+      const distance = getDistanceInKm(shopLat, shopLon, latitude, longitude);
+      console.log("Distance:", distance, "km");
+
+      if (distance > deliveryRadius) {
+        alert(`Sorry, this address is ${distance.toFixed(2)} km away — outside the shop’s ${deliveryRadius} km delivery range.`);
+        return;
+      }
+
+      dispatch(setLocation({
+        lat: latitude,
+        lon: longitude,
+        city: result?.data?.results[0]?.city,
+        postcode: result?.data?.results[0]?.postcode,
+        street: result?.data?.results[0]?.street,
+        suburb: result?.data?.results[0]?.suburb,
+      }))
       getAddressByLatLng(latitude, longitude)
     }
     catch (error) {
@@ -81,20 +139,26 @@ const CheckOut = () => {
     }
   }
   const handlePlaceOrder = async () => {
+    console.log("startcdc");
     try {
+
       const result = await axios.post(`${server}/api/order/place-order`,
         {
-          paymentMethod,
+          paymentMode,
           deliveryAddress: {
             text: addressInput,
             latitude: location.lat,
             longitude: location.lon
           },
-          totalAmount,
+          TotalPrice: userData.TotalPrice,
           cartItems
         }, { withCredentials: true }
       )
       console.log(result.data);
+      // if(result.data)
+      dispatch(addMyOrder(result.data))
+      dispatch(clearCart())
+      navigate('/order-success')
 
     }
     catch (error) {
@@ -104,6 +168,7 @@ const CheckOut = () => {
   }
   useEffect(() => {
     setAddressInput(address)
+
   }, [address])
 
   return (
@@ -111,18 +176,29 @@ const CheckOut = () => {
       <div className='grid lg:grid-cols-2 gap-8'>
         <div>
           <div className=" space-y-6 relative h-[750px] bg-muted border-gray-400 border-2 z-0 overflow-hidden">
-            <MapContainer
-              className={"w-full h-full"}
-              center={[location?.lat, location?.lon]}
-              zoom={16}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <RecenterMap location={location} />
-              <Marker position={[location?.lat, location?.lon]} draggable eventHandlers={{ dragend: ondragEnd }} />
-            </MapContainer>
+            {location?.lat && location?.lon ? (
+              <MapContainer
+                className="w-full h-full"
+                center={[location.lat, location.lon]}
+                zoom={16}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <RecenterMap location={location} />
+                <Marker
+                  position={[location.lat, location.lon]}
+                  draggable
+                  eventHandlers={{ dragend: ondragEnd }}
+                />
+              </MapContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-500">Fetching location...</p>
+              </div>
+            )}
+
           </div>
 
         </div>
@@ -160,46 +236,78 @@ const CheckOut = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address">Street Address</Label>
-                  <Input id="address" placeholder="123 Main St" />
+                  <Label htmlFor="street">Street Address</Label>
+                  <Input disabled={true}
+                    id="street"
+                    value={street || ''}
+                    onChange={(e) => setstreetInput(e.target.value)}
+                    placeholder="123 Main St"
+                  />
                 </div>
+
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="city">City</Label>
-                    <Input id="city" placeholder="New York" />
+                    <Input disabled={true}
+                      id="city"
+                      value={city || ''}
+                      onChange={(e) => setcityInput(e.target.value)}
+                      placeholder="New York"
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="state">State</Label>
-                    <Input id="state" placeholder="NY" />
-                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="zip">ZIP Code</Label>
-                    <Input id="zip" placeholder="10001" />
+                    <Input disabled={true}
+                      id="zip"
+                      value={postcode || ''}
+                      onChange={(e) => setpostInput(e.target.value)}
+                      placeholder="10001"
+                    />
                   </div>
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" />
+                  <Input disabled={true} value={phone} id="phone" type="tel" placeholder="+1 (555) 000-0000" />
                 </div>
 
                 <div className="space-y-4">
-                  {/* <CardContent className=""> */}
-                  <Label htmlFor="phone">Payment Mode</Label>
+                  <Label htmlFor="payment">Payment Mode</Label>
+                  <RadioGroup value={paymentMode} onValueChange={setPaymentMode}>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      {/* Cash on Delivery */}
+                      <Label
+                        htmlFor="cod"
+                        className={`cursor-pointer flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 transition-all ${paymentMode === "cod"
+                          ? "border-green-500 bg-green-50"
+                          : "border-gray-200 hover:border-green-400"
+                          }`}
+                      >
+                        <RadioGroupItem value="cod" id="cod" className="hidden" />
+                        <FaIndianRupeeSign className="text-green-600 text-lg" />
+                        <span className="font-medium text-gray-800">Cash on Delivery</span>
+                      </Label>
 
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    {/* Cash on Delivery */}
-                    <Card className="py-3 flex flex-row items-center justify-center gap-3 flex-1 rounded-sm  border-2 hover:border-green-500 hover:bg-green-50 transition-all cursor-pointer">
-                      <FaIndianRupeeSign className="text-green-600 text-lg" />
-                      <span className="font-medium text-gray-800">Cash on Delivery</span>
-                    </Card>
+                      {/* UPI / Card */}
+                      <Label
+                        htmlFor="upi"
+                        className={`cursor-pointer flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 transition-all ${paymentMode === "upi"
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-blue-400"
+                          }`}
+                      >
+                        <RadioGroupItem value="upi" id="upi" className="hidden" />
+                        <FaIndianRupeeSign className="text-blue-600 text-lg" />
+                        <span className="font-medium text-gray-800">
+                          UPI / Credit / Debit Card
+                        </span>
+                      </Label>
+                    </div>
+                  </RadioGroup>
 
-                    {/* UPI / Card */}
-                    <Card className="py-3 flex flex-row items-center justify-center gap-3 flex-1 rounded-sm  border-2 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
-                      <FaIndianRupeeSign className="text-blue-600 text-lg" />
-                      <span className="font-medium text-gray-800">UPI / Credit / Debit Card</span>
-                    </Card>
-                  </div>
-                  {/* </CardContent> */}
+                  {/* Optional: show selected */}
+                  <p className="text-sm text-gray-600">Selected: {paymentMode}</p>
                 </div>
 
                 <div className="">
@@ -210,24 +318,24 @@ const CheckOut = () => {
                     <div className="space-y-3">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span className="font-medium">$99.00</span>
+                        <span className="font-medium">₹ {''}{userData.TotalPrice}</span>
                       </div>
-                      <div className="flex justify-between text-sm">
+                      {/* <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Shipping</span>
                         <span className="font-medium">$10.00</span>
-                      </div>
+                      </div> */}
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Tax</span>
-                        <span className="font-medium">$8.91</span>
+                        <span className="font-medium">Free</span>
                       </div>
                       <Separator />
                       <div className="flex justify-between">
                         <span className="font-semibold">Total</span>
-                        <span className="font-bold text-lg">$117.91</span>
+                        <span className="font-bold text-lg">₹ {''}{userData.TotalPrice}</span>
                       </div>
                     </div>
 
-                    <Button className="w-full" size="lg">
+                    <Button onClick={handlePlaceOrder} className="w-full" size="lg">
                       Place Order
                     </Button>
 

@@ -6,7 +6,7 @@ const ItemsCard = ({ data }) => {
     const [count, setCount] = useState(0);
     const dispatch = useDispatch()
     const cartItems = useSelector((state) => state.user.CartItems);
-    console.log(data);
+    // console.log(data);
 
     const product = {
         id: data._id,

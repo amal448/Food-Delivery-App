@@ -8,14 +8,14 @@ export default function UseGetShopItems(shopId) {
   const dispatch = useDispatch();
 
   const fetchItems = async () => {
-    console.log("shopId",shopId);
+    // console.log("shopId",shopId);
     
     if (!shopId) return;
     try {
       const res = await axios.get(`${server}/api/item/get-items/${shopId}`, {
         withCredentials: true,
       });
-      console.log("res.data.items ",res.data );
+      // console.log("res.data.items ",res.data );
       
       dispatch(setMyShopItems(res.data || []));
     } catch (error) {

@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 // message to client 
-const sendMail = async (email,otp) => {
+export const sendMail = async (email,otp) => {
     console.log(email,otp);
     
     const info = await transporter.sendMail({
@@ -27,4 +27,21 @@ const sendMail = async (email,otp) => {
     });
 
 }
-export default sendMail;
+// message to client 
+export const sendDeliveryOtpMail = async (to,otp) => {
+    console.log(to,otp);
+    
+    await transporter.sendMail({
+        from: "Food Delivery App",
+        // to,
+        to:"amalthomas333444@gmail.com",
+        subject: "Delivery Otp",
+        text: otp, // plain‑text body
+        html: `Your OTP for delivery is <b>${otp}</b>`, // HTML body
+    });
+
+}
+
+
+
+// export default sendMail;

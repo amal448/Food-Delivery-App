@@ -6,9 +6,12 @@ const CartPage = () => {
 
     const [showAddress, setShowAddress] = useState(false)
     const cartItems = useSelector(state => state.user.CartItems)
+    const userData = useSelector(state => state.user)
+    console.log(userData);
+    
     const dispatch = useDispatch()
-    const navigate=useNavigate()
-    console.log("cartItems", cartItems);
+    const navigate = useNavigate()
+    // console.log("cartItems", cartItems);
 
 
     return (
@@ -76,19 +79,24 @@ const CartPage = () => {
 
                 <div className="text-gray-500 mt-4 space-y-2">
                     <p className="flex justify-between">
-                        <span>Food Items</span><span>2</span>
+                        <span>Food Items</span><span>{userData?.CartItems?.length}</span>
                     </p>
+                    {
+                        userData?.CartItems?.map((item) => {
+                        return(
+                            <p className="flex justify-between">
+                                <span>{item.name}</span><span>{item.price}* {item.quantity}</span>
+                            </p>
+                        )
+                        })
+                    }
 
-                    <p className="flex justify-between">
-                        <span>Item1</span><span>$20</span>
-                    </p>
-                    
                     <p className="flex justify-between text-lg font-medium mt-3">
-                        <span>Total Amount:</span><span>$20</span>
+                        <span>Total Amount:</span><span>₹ {''}{userData.TotalPrice}</span>
                     </p>
                 </div>
 
-                <button onClick={()=>navigate('/checkout')} className="w-full py-3 mt-6 cursor-pointer bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition">
+                <button onClick={() => navigate('/checkout')} className="w-full py-3 mt-6 cursor-pointer bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition">
                     Check Out
                 </button>
             </div>

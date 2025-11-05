@@ -55,7 +55,7 @@ export function EditItem({ refreshShops, showData }) {
   const [loader, setLoader] = useState(false);
 
   const isEditMode = Boolean(shop);
-  console.log("shop",shop);
+  // console.log("shop",shop);
   
   // ✅ Normalize default values to avoid undefined/null issues
   const defaultValues = shop

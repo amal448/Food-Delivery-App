@@ -44,7 +44,7 @@ export const columns = (refreshItems) => [
       const food = row.original
 
       const handleDelete = () => {
-        console.log("Delete clicked:", food)
+        // console.log("Delete clicked:", food)
       }
 
       return (

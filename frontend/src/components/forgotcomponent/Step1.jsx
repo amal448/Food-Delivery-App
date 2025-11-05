@@ -35,7 +35,7 @@ const Step1 = ({ setEmail, setStep, email }) => {
 
   const onSubmit = async (data) => {
     try {
-      console.log("Forgot Password Email:", data)
+      // console.log("Forgot Password Email:", data)
       setEmail(data.email)
       const res = await axios.post('http://localhost:8000/api/auth/send-otp', { email: data.email }, { withCredentials: true })
       setStep(2)

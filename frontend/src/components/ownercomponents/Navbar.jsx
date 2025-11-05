@@ -18,6 +18,9 @@ import { setUserData, setCity } from '@/app/userSlice';
 import { Button } from '../ui/button';
 import { Menu } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { logoutUser } from "@/app/userSlice";
+import { persistor } from '@/app/store';
+import { resetMapState } from '@/app/mapSlice';
 
 const Navbar = () => {
     const name = useSelector((state) => state.user.userData)
@@ -27,12 +30,17 @@ const Navbar = () => {
 
     const handleLogOut = async () => {
         try {
-            console.log("hiii");
+            // console.log("hiii");
 
             const { data } = await axios.get(`${server}/api/auth/signout`, { withCredentials: true })
             navigate('/signin')
             dispatch(setUserData(null))
             dispatch(setCity(null))
+            dispatch(logoutUser()); // Clear user slice
+            dispatch(resetMapState()); // Clear user slice
+
+            persistor.purge(); // 💥 Clear redux-persist storage completely
+            navigate('/signin');
         }
         catch (error) {
             console.log(error);
@@ -44,9 +52,9 @@ const Navbar = () => {
         <div className='w-full flex justify-between items-center overflow-hidden'>
 
             <div className='w-full flex justify-between gap-7 items-center py-4 px-6  mx-auto overflow-hidden'>
-             <SidebarTrigger />
-               
-              
+                <SidebarTrigger />
+
+
                 <div className='flex items-center justify-center gap-6'>
 
                     <span>
@@ -70,9 +78,9 @@ const Navbar = () => {
 
                 </div>
             </div>
-          
 
-          
+
+
         </div>
 
     )

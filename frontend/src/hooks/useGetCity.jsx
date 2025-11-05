@@ -1,6 +1,3 @@
-
-
-
 import React, { useEffect } from 'react'
 import axios from 'axios'
 import { useSelector, useDispatch } from "react-redux";
@@ -8,69 +5,54 @@ import { setCity } from "@/app/userSlice";
 import { setLocation, setAddress } from '@/app/mapSlice';
 
 const useGetCity = () => {
+  // console.log("hiiiii", "useGetCity");
 
-    const dispatch = useDispatch()
-    const { userData } = useSelector((state) => state.user)
+  const dispatch = useDispatch();
+  const { userData } = useSelector((state) => state.user);
+  const { location } = useSelector((state) => state.map);
 
-    useEffect(() => {
-        function fetch() {
+  useEffect(() => {
+    if (location?.city && location?.lat && location?.lon) {
+      // console.log("🟡 Skipping useGetCity — location already exists:", location.city);
+      return;
+    }
+    // 🔹 Make sure user is truly loaded
+    if (!userData || !userData._id) return;
 
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const latitude = position.coords.latitude
-                const longitude = position.coords.longitude
-                dispatch(setLocation({ lat: latitude, lon: longitude }))
+    const fetchLocation = async () => {
+      try {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
 
-                const result = await axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&format=json&apiKey=${import.meta.env.VITE_GEOAPI_KEY}`)
-                dispatch(setCity(result?.data?.results[0]?.city))
-                console.log("result",result?.data?.results[0]?.lat,result?.data?.results[0]?.lon);
-                dispatch(setLocation({ lat: result?.data?.results[0]?.lat, lon: result?.data?.results[0]?.lon }))
-                console.log("result", result?.data.results[0]?.address_line2);
-                dispatch(setAddress(result?.data?.results[0]?.address_line2))
+          dispatch(setLocation({ lat: latitude, lon: longitude }));
 
-            })
-        }
-        fetch()
-    }, [userData])
+          const { data } = await axios.get(
+            `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&format=json&apiKey=${import.meta.env.VITE_GEOAPI_KEY}`
+          );
 
-}
+          const result = data?.results?.[0];
+          if (!result) return;
+          // console.log("SetCity,setLocation", result.city, result.lat, result.lon);
 
-export default useGetCity
+          dispatch(setCity(result.city));
+          dispatch(setLocation({
+            lat: result.lat,
+            lon: result.lon,
+            city: result.city,
+            postcode: result.postcode,
+            street: result.street,
+            suburb: result.suburb
+          }));
+          dispatch(setAddress(result.address_line2));
+        });
+      } catch (error) {
+        console.error("Location fetch failed:", error);
+      }
+    };
 
+    fetchLocation();
+  }, [userData?._id]); // ✅ depends on stable, primitive value (avoids reruns)
+};
 
-
-
-// import React, { useEffect } from 'react'
-// import axios from 'axios'
-// import { useSelector, useDispatch } from "react-redux";
-// import { setCity } from "@/app/userSlice";
-// import { server } from '@/helpers/constants';
-
-// const useGetCity = () => {
-
-//     const dispatch = useDispatch()
-//     const { userData } = useSelector((state) => state.user)
-
-//     useEffect(() => {
-//      async function fetch() {
-
-//             navigator.geolocation.getCurrentPosition(async (position) => {
-//                 const latitude = position.coords.latitude
-//                 const longitude = position.coords.longitude
-
-//                 // const result = await axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&format=json&apiKey=${import.meta.env.VITE_GEOAPI_KEY}`)
-//                 // dispatch(setCity(result?.data?.results[0]?.city))
-//                 const { data } = await axios.post(`${server}/api/location/reverse-geocode`, {
-//                     lat: latitude,
-//                     lon: longitude,
-//                 });
-//                 console.log("City:", data.city);
-//             })
-//         }
-//         fetch()
-//     }, [userData])
-
-// }
-
-// export default useGetCity
-
-
+export default useGetCity;

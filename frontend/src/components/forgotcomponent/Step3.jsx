@@ -34,7 +34,7 @@ const Step3 = ({email}) => {
   })
 
   const onSubmit = async(data) => {
-    console.log("Reset form submitted:", data)
+    // console.log("Reset form submitted:", data)
     try{
       const res = await axios.post('http://localhost:8000/api/auth/reset-password', {email,newpassword:data.password}, { withCredentials: true })
         navigate('/signin')

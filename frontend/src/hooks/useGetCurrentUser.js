@@ -1,26 +1,26 @@
 import React, { useEffect } from 'react'
 import axios from 'axios'
 import { server } from '@/helpers/constants'
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUserData } from "@/app/userSlice";
 
 const useGetCurrentUser = () => {
-    
-    const dispatch = useDispatch()
-    useEffect(() => {
-        async function fetchUser() {
-            try {
-                const res = await axios.get(`${server}/api/user/current`, { withCredentials: true })
-                dispatch(setUserData(res.data))
-            }
-            catch (error) {
-                console.log(error);
+  const dispatch = useDispatch();
 
-            }
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await axios.get(`${server}/api/user/current`, { withCredentials: true });
+        if (res.data) {
+          dispatch(setUserData(res.data));
         }
-        fetchUser()
-    }, [])
+      } catch (error) {
+        console.log("Error fetching current user:", error);
+      }
+    }
 
-}
+    fetchUser(); // only once on mount
+  }, [dispatch]);
+};
 
-export default useGetCurrentUser
+export default useGetCurrentUser;
