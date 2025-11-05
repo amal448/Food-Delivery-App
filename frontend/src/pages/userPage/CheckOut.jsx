@@ -339,13 +339,13 @@ const CheckOut = () => {
 
                       {/* UPI / Card */}
                       <Label
-                        htmlFor="upi"
-                        className={`cursor-pointer flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 transition-all ${paymentMode === "upi"
+                        htmlFor="online"
+                        className={`cursor-pointer flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 transition-all ${paymentMode === "online"
                           ? "border-blue-500 bg-blue-50"
                           : "border-gray-200 hover:border-blue-400"
                           }`}
                       >
-                        <RadioGroupItem value="upi" id="upi" className="hidden" />
+                        <RadioGroupItem value="online" id="online" className="hidden" />
                         <FaIndianRupeeSign className="text-blue-600 text-lg" />
                         <span className="font-medium text-gray-800">
                           UPI / Credit / Debit Card
