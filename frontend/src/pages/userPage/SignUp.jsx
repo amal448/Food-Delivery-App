@@ -15,6 +15,7 @@ import { ClipLoader } from "react-spinners";
 import { useSelector, useDispatch } from "react-redux";
 import { setUserData } from "@/app/userSlice";
 import { useNavigate } from "react-router-dom";
+import { server } from "@/helpers/constants.js";
 // ✅ Zod validation schema
 const signUpSchema = z.object({
   fullName: z
