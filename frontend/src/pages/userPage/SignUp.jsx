@@ -47,7 +47,8 @@ const SignUp = () => {
   const onSubmit = async (data) => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/auth/signup",
+          `${server}/api/auth/signup`,
+        // "http://localhost:8000/api/auth/signup",
         data,
         { withCredentials: true }
       );

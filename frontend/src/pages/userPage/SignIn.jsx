@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ClipLoader } from "react-spinners";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../../firebase.js";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { setUserData } from "@/app/userSlice";
 import { useNavigate } from "react-router-dom";
 
@@ -23,8 +23,8 @@ const signInSchema = z.object({
 
 const SignIn = () => {
     const [showPassword, setShowPassword] = useState(false);
-     const dispatch = useDispatch()
-     const navigate=useNavigate()
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
     // ✅ useForm setup
     const {
         register,
@@ -38,7 +38,8 @@ const SignIn = () => {
     const onSubmit = async (data) => {
         try {
             const res = await axios.post(
-                "http://localhost:8000/api/auth/signin",
+                // "http://localhost:8000/api/auth/signin",
+                `${server}/api/auth/signin`,
                 data,
                 { withCredentials: true }
             );
@@ -50,28 +51,27 @@ const SignIn = () => {
         }
     };
     // ✅ Google Auth
-  const handleGoogleAuth = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const res = await axios.post(
-        "http://localhost:8000/api/auth/google-sign",
-        {
-          fullName: result.user.displayName,
-          email: result.user.email,
-        },
-        { withCredentials: true }
-      );
-      console.log("Google Signup:", res.data);
-      if(res?.data)
-      {
-        dispatch(setUserData(res.data));
-           navigate("/", { replace: true });
-      }
-    } catch (error) {
-      console.log("Google Auth Error:", error);
-    }
-  };
+    const handleGoogleAuth = async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const res = await axios.post(
+                "http://localhost:8000/api/auth/google-sign",
+                {
+                    fullName: result.user.displayName,
+                    email: result.user.email,
+                },
+                { withCredentials: true }
+            );
+            console.log("Google Signup:", res.data);
+            if (res?.data) {
+                dispatch(setUserData(res.data));
+                navigate("/", { replace: true });
+            }
+        } catch (error) {
+            console.log("Google Auth Error:", error);
+        }
+    };
     return (
         <div className="flex h-screen max-w-7xl mx-auto py-5">
             {/* Left image section */}
@@ -154,12 +154,12 @@ const SignIn = () => {
                         disabled={isSubmitting}
                         className="mt-8 w-full h-11 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity disabled:opacity-60"
                     >
-                        {isSubmitting ? <ClipLoader  size={20}/> : "Login"}
+                        {isSubmitting ? <ClipLoader size={20} /> : "Login"}
                     </button>
 
                     {/* Google auth button */}
                     <button
-                       onClick={handleGoogleAuth}
+                        onClick={handleGoogleAuth}
                         type="button"
                         className="w-full mt-8 bg-gray-500/10 flex items-center justify-center h-12 rounded-full"
                     >
