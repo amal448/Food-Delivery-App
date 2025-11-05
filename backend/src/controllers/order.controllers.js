@@ -14,7 +14,7 @@ export const placeOrder = async (req, res) => {
 console.log("placeOrder",req.body);
 
     try {
-        const { cartItems, deliveryAddress, totalAmount } = req.body
+        const { cartItems, deliveryAddress, totalAmount,paymentMode } = req.body
 
         if (cartItems.length == 0 || !cartItems) {
             return res.status(400).json({ message: "cart is empty" })

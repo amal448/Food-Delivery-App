@@ -326,30 +326,36 @@ const CheckOut = () => {
 
                 <div className="space-y-4">
                   <Label htmlFor="payment">Payment Mode</Label>
-                  <RadioGroup value={paymentMode} onValueChange={setPaymentMode}>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      {/* Cash on Delivery */}
-                      <Label
-                        htmlFor="cod"
-                        className={`cursor-pointer flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 transition-all ${paymentMode === "cod"
-                            ? "border-green-500 bg-green-50"
-                            : "border-gray-200 hover:border-green-400"
-                          }`}
-                      >
-                        <RadioGroupItem value="cod" id="cod" className="hidden" />
+                  <RadioGroup
+                    value={paymentMode}
+                    onValueChange={setPaymentMode}
+                    className="flex flex-col sm:flex-row gap-4"
+                  >
+                    {/* Cash on Delivery */}
+                    <div
+                      className={`flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 cursor-pointer transition-all ${paymentMode === "cod"
+                          ? "border-green-500 bg-green-50"
+                          : "border-gray-200 hover:border-green-400"
+                        }`}
+                      onClick={() => setPaymentMode("cod")}
+                    >
+                      <RadioGroupItem value="cod" id="cod" />
+                      <Label htmlFor="cod" className="flex items-center gap-2 cursor-pointer">
                         <FaIndianRupeeSign className="text-green-600 text-lg" />
                         <span className="font-medium text-gray-800">Cash on Delivery</span>
                       </Label>
+                    </div>
 
-                      {/* Online Payment (UPI / Card) */}
-                      <Label
-                        htmlFor="online"
-                        className={`cursor-pointer flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 transition-all ${paymentMode === "online"
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200 hover:border-blue-400"
-                          }`}
-                      >
-                        <RadioGroupItem value="online" id="online" className="hidden" />
+                    {/* Online Payment */}
+                    <div
+                      className={`flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 cursor-pointer transition-all ${paymentMode === "online"
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-blue-400"
+                        }`}
+                      onClick={() => setPaymentMode("online")}
+                    >
+                      <RadioGroupItem value="online" id="online" />
+                      <Label htmlFor="online" className="flex items-center gap-2 cursor-pointer">
                         <FaIndianRupeeSign className="text-blue-600 text-lg" />
                         <span className="font-medium text-gray-800">
                           UPI / Credit / Debit Card
@@ -357,6 +363,7 @@ const CheckOut = () => {
                       </Label>
                     </div>
                   </RadioGroup>
+
 
                   <p className="text-sm text-gray-600">Selected: {paymentMode}</p>
                 </div>
