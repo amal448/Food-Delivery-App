@@ -11,10 +11,10 @@ const instance = new Razorpay({
 });
 
 export const placeOrder = async (req, res) => {
-console.log("placeOrder",req.body);
+    console.log("placeOrder", req.body);
 
     try {
-        const { cartItems, deliveryAddress, totalAmount,paymentMode } = req.body
+        const { cartItems, deliveryAddress, totalAmount, paymentMode } = req.body
 
         if (cartItems.length == 0 || !cartItems) {
             return res.status(400).json({ message: "cart is empty" })
@@ -105,7 +105,8 @@ console.log("placeOrder",req.body);
         return res.status(201).json(newOrder)
     }
     catch (error) {
-        return res.status(500).json({ message: `place order error ${error}` })
+        console.error("placeOrder error:", error);
+        return res.status(500).json({ message: `place order error: ${error.message || JSON.stringify(error)}` });
     }
 }
 
@@ -128,10 +129,10 @@ export const verifyPayment = async (req, res) => {
         await order.populate("shopOrder.shopOrderItems.item", "name image price")
         await order.populate("shopOrder.shop", "name")
         return res.status(200).json(order)
-       
+
     }
     catch (error) {
-          console.error("verifyPayment error", error);
+        console.error("verifyPayment error", error);
         return res.status(500).json({ message: "verifyPayment Error" });
     }
 }
