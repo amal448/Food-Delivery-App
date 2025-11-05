@@ -18,11 +18,12 @@ export const signUp = async (req, res) => {
         })
         const token = await genToken(newuser._id)
         res.cookie("token", token, {
-            secure: false,
-            sameSite: "strict",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // true only when deployed (Render uses HTTPS)
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // "none" allows cross-site cookies
             maxAge: 7 * 24 * 60 * 60 * 1000,
-            httpOnly: true
-        })
+        });
+
         return res.status(201).json(newuser)
     }
     catch (error) {
@@ -49,12 +50,19 @@ export const signIn = async (req, res) => {
         if (!isMatch) return res.status(400).json({ message: "Invalid Credentials!!" })
 
         const token = await genToken(user._id)
+        // res.cookie("token", token, {
+        //     secure: false,
+        //     sameSite: "strict",
+        //     maxAge: 7 * 24 * 60 * 60 * 1000,
+        //     httpOnly: true
+        // })
         res.cookie("token", token, {
-            secure: false,
-            sameSite: "strict",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // true only when deployed (Render uses HTTPS)
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // "none" allows cross-site cookies
             maxAge: 7 * 24 * 60 * 60 * 1000,
-            httpOnly: true
-        })
+        });
+
         return res.status(201).json(user)
     }
     catch (error) {
