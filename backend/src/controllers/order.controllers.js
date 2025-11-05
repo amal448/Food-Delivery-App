@@ -14,7 +14,7 @@ export const placeOrder = async (req, res) => {
     console.log("placeOrder", req.body);
 
     try {
-        const { cartItems, deliveryAddress, totalAmount, paymentMode } = req.body
+        const { cartItems, deliveryAddress, TotalPrice, paymentMode } = req.body
 
         if (cartItems.length == 0 || !cartItems) {
             return res.status(400).json({ message: "cart is empty" })
@@ -69,7 +69,7 @@ export const placeOrder = async (req, res) => {
 
         if (paymentMode == "online") {
             const razorOrder = await instance.orders.create({
-                amount: Math.round(totalAmount * 100), // Amount in paise
+                amount: Math.round(TotalPrice * 100), // Amount in paise
                 currency: "INR",
                 receipt: `receipt_${Date.now()}`,
             });
@@ -79,7 +79,7 @@ export const placeOrder = async (req, res) => {
                 user: req.userId,
                 paymentMethod: req.body.paymentMode,
                 deliveryAddress,
-                totalAmount,
+                totalAmount:TotalPrice,
                 shopOrder: shopOrders,
                 razorpayOrderId: razorOrder.id,
                 payment: false
@@ -97,7 +97,7 @@ export const placeOrder = async (req, res) => {
             user: req.userId,
             paymentMethod: req.body.paymentMode,
             deliveryAddress,
-            totalAmount,
+            totalAmount:TotalPrice,
             shopOrder: shopOrders
         })
         await newOrder.populate("shopOrder.shopOrderItems.item", "name image price")
