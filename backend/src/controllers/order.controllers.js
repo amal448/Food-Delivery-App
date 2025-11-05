@@ -69,7 +69,7 @@ export const placeOrder = async (req, res) => {
 
         if (paymentMode == "online") {
             const razorOrder = await instance.orders.create({
-                amount: Math.round(TotalPrice * 100), // Amount in paise
+                amount: Math.round(TotalPrice), // Amount in paise
                 currency: "INR",
                 receipt: `receipt_${Date.now()}`,
             });
