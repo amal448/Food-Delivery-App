@@ -13,18 +13,29 @@ import cookieParser from 'cookie-parser'
 dotenv.config()
 const app = express()
 app.use(express.json())
+
+const allowedOrigins = [
+    "https://food-delivery-app-pi-opal.vercel.app",
+    "http://localhost:5173"
+];
+
 app.use(
     cors({
-        origin: [
-            "https://food-delivery-app-pi-opal.vercel.app",
-            "http://localhost:5173",
-        ],
+        origin: function (origin, callback) {
+            // Allow requests with no origin (like mobile apps or curl)
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true,
     })
 );
 
 app.get("/", (req, res) => {
-  res.send("Backend is running successfully 🚀");
+    res.send("Backend is running successfully 🚀");
 });
 
 app.use(cookieParser())
