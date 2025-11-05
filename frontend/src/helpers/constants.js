@@ -1,4 +1,4 @@
-export const server ="https://food-delivery-backend-ymws.onrender.com/" 
+export const server ="https://food-delivery-backend-ymws.onrender.com" 
 // export const server = import.meta.env.VITE_SERVER_URL
 export const category = [
     "Snacks",
