@@ -15,25 +15,17 @@ const app = express()
 app.use(express.json())
 
 const allowedOrigins = [
-    "https://food-delivery-app-pi-opal.vercel.app",
-    "https://food-delivery-app-git-master-amal-thomas-projects-4a30a3d8.vercel.app",
-    "https://food-delivery-app.vercel.app",
-    "http://localhost:5173"
+  "https://food-delivery-app-pi-opal.vercel.app",
+  "http://localhost:5173",
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.some((o) => origin.startsWith(o))) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
+    origin: allowedOrigins,
+    credentials: true, // 👈 important
   })
 );
+
 
 app.get("/", (req, res) => {
     res.send("Backend is running successfully 🚀");
