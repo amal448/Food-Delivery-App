@@ -167,6 +167,8 @@ const CheckOut = () => {
       else {
         const orderId = result.data.orderId
         const razorOrder = result.data.razorOrder
+        console.log(orderId,razorOrder);
+        
         openRazorpayWindow(orderId, razorOrder)
       }
 
@@ -204,14 +206,7 @@ const CheckOut = () => {
 
         }
       },
-      // prefill: {
-      //   name: "Amal Thomas",
-      //   email: "amalthomas@example.com",
-      //   contact: "9999999999",
-      // },
-      // theme: {
-      //   color: "#3399cc",
-      // },
+  
     };
     const rzp = new window.Razorpay(options);
     rzp.open();
