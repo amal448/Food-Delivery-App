@@ -154,11 +154,19 @@ const CheckOut = () => {
           cartItems
         }, { withCredentials: true }
       )
-      console.log(result.data);
-      // if(result.data)
-      dispatch(addMyOrder(result.data))
-      dispatch(clearCart())
-      navigate('/order-success')
+
+      if (paymentMode == 'cod') {
+        console.log(result.data);
+        // if(result.data)
+        dispatch(addMyOrder(result.data))
+        dispatch(clearCart())
+        navigate('/order-success')
+      }
+      else {
+        const orderId = result.data.orderId
+        const razorOrder = result.data.razorOrder
+        openRazorpayWindow(orderId, razorOrder)
+      }
 
     }
     catch (error) {
@@ -166,6 +174,46 @@ const CheckOut = () => {
 
     }
   }
+
+  const openRazorpayWindow = (orderId, razorOrder) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: razorOrder.amount,
+      currency: "INR",
+      name: "Food Delivery App",
+      description: "React App Payment Test",
+      order_id: razorOrder.id,
+
+      handler: async function (response) {
+        try {
+          const result = await axios.post(`${server}/api/order/verify-payment`, {
+            razorpay_payment_id: response.razorpay_payment_id,
+            orderId
+          }, { withCredentials: true })
+          dispatch(addMyOrder(result.data))
+          dispatch(clearCart())
+          navigate('/order-success')
+
+        }
+        catch (error) {
+          console.log(error);
+          
+        }
+      },
+      // prefill: {
+      //   name: "Amal Thomas",
+      //   email: "amalthomas@example.com",
+      //   contact: "9999999999",
+      // },
+      // theme: {
+      //   color: "#3399cc",
+      // },
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  }
+
+
   useEffect(() => {
     setAddressInput(address)
 
