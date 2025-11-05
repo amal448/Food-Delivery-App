@@ -139,8 +139,8 @@ const CheckOut = () => {
     }
   }
   const handlePlaceOrder = async () => {
-    console.log( "paymentMode", paymentMode);
-    
+    console.log("paymentMode", paymentMode);
+
     console.log("startcdc");
     try {
 
@@ -179,7 +179,7 @@ const CheckOut = () => {
 
   const openRazorpayWindow = (orderId, razorOrder) => {
     console.log(razorOrder);
-    
+
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: razorOrder.amount,
@@ -201,7 +201,7 @@ const CheckOut = () => {
         }
         catch (error) {
           console.log(error);
-          
+
         }
       },
       // prefill: {
@@ -332,8 +332,8 @@ const CheckOut = () => {
                       <Label
                         htmlFor="cod"
                         className={`cursor-pointer flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 transition-all ${paymentMode === "cod"
-                          ? "border-green-500 bg-green-50"
-                          : "border-gray-200 hover:border-green-400"
+                            ? "border-green-500 bg-green-50"
+                            : "border-gray-200 hover:border-green-400"
                           }`}
                       >
                         <RadioGroupItem value="cod" id="cod" className="hidden" />
@@ -341,12 +341,12 @@ const CheckOut = () => {
                         <span className="font-medium text-gray-800">Cash on Delivery</span>
                       </Label>
 
-                      {/* UPI / Card */}
+                      {/* Online Payment (UPI / Card) */}
                       <Label
                         htmlFor="online"
                         className={`cursor-pointer flex-1 rounded-md border-2 flex items-center justify-center gap-3 py-3 transition-all ${paymentMode === "online"
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200 hover:border-blue-400"
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 hover:border-blue-400"
                           }`}
                       >
                         <RadioGroupItem value="online" id="online" className="hidden" />
@@ -358,9 +358,9 @@ const CheckOut = () => {
                     </div>
                   </RadioGroup>
 
-                  {/* Optional: show selected */}
                   <p className="text-sm text-gray-600">Selected: {paymentMode}</p>
                 </div>
+
 
                 <div className="">
                   <div className='mb-4'>

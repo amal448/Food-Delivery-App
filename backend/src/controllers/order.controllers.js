@@ -11,6 +11,7 @@ const instance = new Razorpay({
 });
 
 export const placeOrder = async (req, res) => {
+console.log("placeOrder",req.body);
 
     try {
         const { cartItems, deliveryAddress, totalAmount } = req.body
@@ -66,7 +67,7 @@ export const placeOrder = async (req, res) => {
             }))
 
 
-        if (paymentMethod == "online") {
+        if (paymentMode == "online") {
             const razorOrder = await instance.orders.create({
                 amount: Math.round(totalAmount * 100), // Amount in paise
                 currency: "INR",
