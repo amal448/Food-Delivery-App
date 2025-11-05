@@ -37,7 +37,9 @@ const SignIn = () => {
 
     // ✅ Submit handler
     const onSubmit = async (data) => {
+        console.log("server",server);
         try {
+            
             const res = await axios.post(
                 // "http://localhost:8000/api/auth/signin",
                 `${server}/api/auth/signin`,
