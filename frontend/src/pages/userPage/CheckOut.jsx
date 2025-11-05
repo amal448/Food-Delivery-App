@@ -139,6 +139,8 @@ const CheckOut = () => {
     }
   }
   const handlePlaceOrder = async () => {
+    console.log( "paymentMode", paymentMode);
+    
     console.log("startcdc");
     try {
 
@@ -176,6 +178,8 @@ const CheckOut = () => {
   }
 
   const openRazorpayWindow = (orderId, razorOrder) => {
+    console.log(razorOrder);
+    
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: razorOrder.amount,
