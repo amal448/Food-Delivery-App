@@ -30,6 +30,7 @@ function RecenterMap({ location }) {
 
 const CheckOut = () => {
   const { location, address } = useSelector(state => state.map)
+  const { TotalPrice } = useSelector(state => state.user)
   const { lat, lon, city, postcode, street, suburb } = location || {}
 
   const [addressInput, setAddressInput] = useState('')
@@ -41,6 +42,10 @@ const CheckOut = () => {
   const cartItems = useSelector(state => state.user.CartItems)
   const userData = useSelector(state => state.user)
   const navigate = useNavigate()
+  const deliveryFee=TotalPrice >500?0:40
+  const AmountWithDeliveryFee=TotalPrice +deliveryFee
+
+
 
   const ondragEnd = (e) => {
     console.log(e.target);
@@ -152,7 +157,7 @@ const CheckOut = () => {
             latitude: location.lat,
             longitude: location.lon
           },
-          TotalPrice: userData.TotalPrice,
+          TotalPrice: AmountWithDeliveryFee,
           cartItems
         }, { withCredentials: true }
       )

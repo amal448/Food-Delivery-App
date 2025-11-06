@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function ViewItems() {
   const item = useSelector((state) => state?.user?.myOrders);
-  const navigate=useNavigate()
+  const navigate = useNavigate()
 
   if (!item) {
     return <p className="text-center">Loading items...</p>;
@@ -21,13 +21,14 @@ export default function ViewItems() {
         price: item.item?.price || 0,
         quantity: item.quantity,
         paymentMethod: order.paymentMethod,
+        payment: order.payment,
         address: order.deliveryAddress?.text || "N/A",
         status: shopOrder.status,
         createdAt: new Date(order.createdAt).toLocaleString(),
       }))
     )
   );
-console.log("formattedData",formattedData);
+  console.log("formattedData", formattedData);
 
   return (
     <div className="md:p-10 p-4 space-y-4">
@@ -75,25 +76,28 @@ console.log("formattedData",formattedData);
             {/* Meta Info */}
             <div className="flex flex-col gap-3 text-sm">
               <p>
-                Method:{" "}
+                {/* Method{" "} */}
                 <span className="uppercase font-bold">
-                  {order.paymentMethod}
+                  {order.paymentMethod == 'cod' ?
+                    <p>Method:{' '}{order.paymentMethod?.toUpperCase()}</p> :
+                    <p>Online Payment:{' '}{order.payment ? "true" : "false"}</p>
+                  }
                 </span>
               </p>
               <p>Date: {order.createdAt}</p>
               <p
                 className={`font-bold ${{
-                    pending: "text-yellow-500",
-                    outofDelivery: "text-blue-500",
-                    process: "text-orange-500",
-                    delivered: "text-green-500",
-                    cancelled: "text-red-500",
-                  }[order.status] || "text-gray-500"
+                  pending: "text-yellow-500",
+                  outofDelivery: "text-blue-500",
+                  process: "text-orange-500",
+                  delivered: "text-green-500",
+                  cancelled: "text-red-500",
+                }[order.status] || "text-gray-500"
                   }`}
               >
                 Status: {order.status}
               </p>
-              <Button onClick={()=>navigate(`/track-order/${order.orderId}`)}>Track Order</Button>
+              <Button onClick={() => navigate(`/track-order/${order.orderId}`)}>Track Order</Button>
 
 
             </div>

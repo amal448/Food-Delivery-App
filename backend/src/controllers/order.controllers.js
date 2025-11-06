@@ -69,17 +69,18 @@ export const placeOrder = async (req, res) => {
 
         if (paymentMode == "online") {
             const razorOrder = await instance.orders.create({
-                amount: Math.round(TotalPrice), // Amount in paise
+                amount: Math.round(TotalPrice * 100), // Amount in paise
                 currency: "INR",
                 receipt: `receipt_${Date.now()}`,
             });
 
-
+            console.log("razororder",razorOrder);
+            
             const newOrder = await Order.create({
                 user: req.userId,
                 paymentMethod: req.body.paymentMode,
                 deliveryAddress,
-                totalAmount:TotalPrice * 100,
+                totalAmount:TotalPrice ,
                 shopOrder: shopOrders,
                 razorpayOrderId: razorOrder.id,
                 payment: false
@@ -166,6 +167,7 @@ export const getMyOrders = async (req, res) => {
                 return {
                     deliveryAddress: order.deliveryAddress,
                     paymentMethod: order.paymentMethod,
+                    payment: order.payment,
                     user: order.user,
                     shopOrder: shopOrder || null,
                     orderId: order._id

@@ -17,7 +17,8 @@ const OrderList = () => {
   const dispatch = useDispatch();
   const boxIcon = "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/e-commerce/boxIcon.svg";
   const orders = useSelector(state => state.user.myOrders);
-
+  console.log("orders",orders);
+  
   const handleUpdateStatus = async (orderId, shopId, status) => {
     console.log("orderId, shopId, status", orderId, shopId, status);
     try {
@@ -63,7 +64,10 @@ const OrderList = () => {
             <p>{order.user.fullName}</p>
             <p>{order.user.mobile}</p>
             <p className="font-medium mb-1">{order.deliveryAddress?.text}</p>
-            <p>{order.paymentMethod}</p>
+            {order.paymentMethod =='online'?<p className='gap-2 text-sm text-gray-600'>payment: {order.payment?"True":"False"}</p>:
+            
+            <p>payment Method :{order.paymentMethod}</p>
+            }
           </div>
 
           {/* Total */}
